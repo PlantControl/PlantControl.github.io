@@ -1,9 +1,14 @@
 # PlantControl domain
 
-This GitHub Pages site serves Go import metadata for `plantcontrol.org/v1/<repo>`
-(`gonum`, `controlsys`, `systemid`, `process-lab`), each pointing at
-`https://github.com/PlantControl/<repo>`. To add a module, create
-`v1/<repo>/index.html` and add its `go-import` tag to `404.html`.
+This GitHub Pages site serves Go import metadata, each pointing at
+`https://github.com/PlantControl/<repo>`:
+
+- Public modules: `plantcontrol.org/v1/<repo>` (`gonum`, `controlsys`).
+- Private modules: `plantcontrol.org/private/<repo>` (`systemid`, `process-lab`).
+  Consumers set `GOPRIVATE=plantcontrol.org/private` and need Git access.
+
+To add a module, create `v1/<repo>/index.html` or `private/<repo>/index.html`
+and add its `go-import` tag to `404.html`.
 
 The custom domain is `plantcontrol.org`. At Spaceship, configure four apex
 `A` records (`@`) for GitHub Pages:
