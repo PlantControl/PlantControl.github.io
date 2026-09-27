@@ -4,7 +4,7 @@ This GitHub Pages site serves Go import metadata, each pointing at
 `https://github.com/PlantControl/<repo>`:
 
 - Public modules: `plantcontrol.org/v1/<repo>` (`gonum`, `controlsys`).
-- Private modules: `plantcontrol.org/private/<repo>` (`systemid`, `process-lab`).
+- Private modules: `plantcontrol.org/private/<repo>` (`systemid`, `process-lab`, `qlx`).
   Consumers set `GOPRIVATE=plantcontrol.org/private` and need Git access.
 
 To add a module, create `v1/<repo>/index.html` or `private/<repo>/index.html`
