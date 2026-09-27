@@ -31,3 +31,29 @@ curl -sSL 'https://plantcontrol.org/v1/gonum/blas?go-get=1'
 
 The module itself will not resolve until `PlantControl/gonum` exists and its
 `go.mod` declares `module plantcontrol.org/v1/gonum`.
+
+## Private modules
+
+- Path: `plantcontrol.org/private/<repo>` in a private `PlantControl/<repo>`.
+- Developers: `go env -w GOPRIVATE=plantcontrol.org/private` and Git access to
+  GitHub (SSH `insteadOf` or `gh auth setup-git`).
+- CI: the PlantControl GitHub App mints a read-only token per job. Needs org
+  variable `PLANTCONTROL_GO_APP_ID` and org secret `PLANTCONTROL_GO_APP_KEY`;
+  install the app on every private module repo. Workflow steps:
+
+```yaml
+env:
+  GOPRIVATE: plantcontrol.org/private
+steps:
+  - uses: actions/create-github-app-token@v2
+    id: app-token
+    with:
+      app-id: ${{ vars.PLANTCONTROL_GO_APP_ID }}
+      private-key: ${{ secrets.PLANTCONTROL_GO_APP_KEY }}
+      owner: PlantControl
+      permission-contents: read
+  - run: git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/PlantControl/".insteadOf "https://github.com/PlantControl/"
+```
+
+- Docker: pass credentials as a BuildKit secret (`--mount=type=secret,id=netrc`),
+  never a build argument.
