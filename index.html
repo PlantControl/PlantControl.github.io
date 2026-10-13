@@ -3,13 +3,297 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PlantControl</title>
+  <title>PlantControl — open-source control systems in pure Go</title>
+  <meta name="description" content="Open-source Go libraries for control-system design, system identification, process simulation, and numerical linear algebra.">
+  <meta name="theme-color" content="#0b163a">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="canonical" href="https://plantcontrol.org/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PlantControl">
+  <meta property="og:title" content="PlantControl">
+  <meta property="og:description" content="Open-source control systems in pure Go.">
+  <meta property="og:url" content="https://plantcontrol.org/">
+  <meta property="og:image" content="https://plantcontrol.org/assets/og-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #0b163a;
+      --navy-deep: #070f2b;
+      --panel: #0f1d4a;
+      --line: #22346e;
+      --cyan: #00add8;
+      --cyan-bright: #19c3f0;
+      --amber: #f5a524;
+      --text: #f4f6fa;
+      --muted: #9aa5ba;
+      --sans: "Space Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--navy-deep);
+      color: var(--text);
+      font: 17px/1.6 var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--cyan-bright); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: var(--mono); }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+
+    header.top {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(7, 15, 43, .82);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+    }
+    header.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 700; font-size: 20px; letter-spacing: -.01em; }
+    .brand:hover { text-decoration: none; }
+    .brand img { width: 34px; height: 34px; border-radius: 7px; }
+    .brand b { font-weight: 700; }
+    .brand span { color: var(--cyan-bright); }
+    nav.links { display: flex; gap: 26px; font-size: 15px; }
+    nav.links a { color: var(--muted); }
+    nav.links a:hover { color: var(--text); text-decoration: none; }
+
+    .hero {
+      position: relative; overflow: hidden;
+      background: var(--navy) url("assets/hero.webp") right center / cover no-repeat;
+      border-bottom: 1px solid var(--line);
+    }
+    .hero::before {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(90deg, var(--navy) 36%, rgba(11, 22, 58, .6) 58%, rgba(11, 22, 58, 0) 82%);
+    }
+    .hero .wrap { position: relative; padding-top: 110px; padding-bottom: 120px; }
+    .eyebrow { font: 500 13px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--cyan-bright); }
+    .hero h1 { margin: 18px 0 18px; max-width: 13ch; font-size: clamp(40px, 6vw, 68px); line-height: 1.04; letter-spacing: -.025em; }
+    .hero h1 em { font-style: normal; color: var(--cyan-bright); }
+    .hero p.lede { max-width: 34rem; margin: 0 0 32px; color: #c6cede; font-size: 19px; }
+    .cta { display: flex; flex-wrap: wrap; gap: 14px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 20px; border-radius: 8px; font-weight: 500;
+      border: 1px solid var(--line); color: var(--text); background: rgba(15, 29, 74, .7);
+    }
+    .btn:hover { text-decoration: none; border-color: var(--cyan); }
+    .btn.primary { background: var(--cyan); border-color: var(--cyan); color: var(--navy-deep); }
+    .btn.primary:hover { background: var(--cyan-bright); }
+    .install {
+      margin-top: 40px; max-width: 34rem;
+      background: rgba(7, 15, 43, .85); border: 1px solid var(--line); border-radius: 10px;
+      padding: 14px 18px; font-size: 14px; color: #c6cede; overflow-x: auto;
+    }
+    .install span { color: var(--muted); user-select: none; }
+
+    section { padding: 96px 0; scroll-margin-top: 64px; }
+    section + section { border-top: 1px solid var(--line); }
+    h2 { margin: 12px 0 14px; font-size: clamp(30px, 4vw, 42px); letter-spacing: -.02em; line-height: 1.1; }
+    .section-intro { max-width: 40rem; color: var(--muted); margin: 0 0 48px; }
+
+    .grid { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .card {
+      display: flex; flex-direction: column;
+      background: linear-gradient(180deg, var(--panel), var(--navy));
+      border: 1px solid var(--line); border-radius: 14px; padding: 26px;
+      transition: border-color .2s, transform .2s;
+    }
+    .card:hover { border-color: var(--cyan); transform: translateY(-2px); }
+    .card .icon { width: 72px; height: 72px; border-radius: 14px; margin-bottom: 18px; object-fit: cover; background: var(--navy-deep); }
+    .card .icon.gopher { object-fit: contain; padding: 4px; border: 1px solid var(--line); }
+    .card h3 { margin: 0 0 4px; font: 500 21px/1.3 var(--mono); }
+    .card .tag { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--amber); margin-left: 8px; vertical-align: middle; }
+    .card p { margin: 8px 0 18px; color: #c6cede; font-size: 16px; }
+    .card ul { margin: 0 0 20px; padding-left: 18px; color: var(--muted); font-size: 15px; }
+    .card pre {
+      margin: auto 0 16px; padding: 10px 12px; border-radius: 8px;
+      background: var(--navy-deep); border: 1px solid var(--line);
+      font-size: 12.5px; color: #c6cede; white-space: pre-wrap; overflow-wrap: anywhere;
+    }
+    .card .more { font-size: 15px; }
+    .card.private { background: var(--navy); border-style: dashed; }
+    .card.private:hover { transform: none; border-color: var(--line); }
+
+    .principles { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .principle { padding: 24px 0 0; border-top: 2px solid var(--cyan); }
+    .principle h3 { margin: 0 0 8px; font-size: 20px; }
+    .principle p { margin: 0; color: var(--muted); font-size: 16px; }
+
+    .modules { display: grid; gap: 48px; grid-template-columns: 1.3fr 1fr; align-items: center; }
+    .modules table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .modules th, .modules td { text-align: left; padding: 12px 10px; border-bottom: 1px solid var(--line); }
+    .modules th { font: 500 12px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+    .modules td code { color: var(--cyan-bright); font-size: 13.5px; }
+    .modules .note { margin-top: 18px; color: var(--muted); font-size: 15px; }
+    .modules .note code { color: var(--text); font-size: 14px; }
+    .mascot { width: 100%; max-width: 380px; justify-self: center; filter: drop-shadow(0 18px 40px rgba(0, 173, 216, .18)); }
+
+    footer { border-top: 1px solid var(--line); padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
+    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
+    footer p { margin: 0; max-width: 46rem; }
+
+    @media (max-width: 820px) {
+      nav.links { display: none; }
+      .hero { background-position: 70% center; }
+      .hero::before { background: linear-gradient(180deg, rgba(11, 22, 58, .78), var(--navy) 85%); }
+      .hero .wrap { padding-top: 72px; padding-bottom: 80px; }
+      section { padding: 72px 0; }
+      .modules { grid-template-columns: 1fr; }
+      .mascot { max-width: 260px; order: -1; }
+      .wrap { padding: 0 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .card { transition: none; }
+    }
+  </style>
 </head>
 <body>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="/"><img src="assets/web/logo-mark.webp" alt="" width="34" height="34"><b>Plant<span>Control</span></b></a>
+      <nav class="links" aria-label="Primary">
+        <a href="#libraries">Libraries</a>
+        <a href="#principles">Principles</a>
+        <a href="#modules">Modules</a>
+        <a href="https://github.com/PlantControl">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
   <main>
-    <h1>PlantControl</h1>
-    <p>Open-source software for control systems, simulation, and system identification.</p>
-    <p><a href="https://github.com/PlantControl">GitHub organization</a></p>
+    <div class="hero">
+      <div class="wrap">
+        <div class="eyebrow">Control · Identification · Simulation · Linear algebra</div>
+        <h1>Control systems in <em>pure Go</em></h1>
+        <p class="lede">Open-source libraries for designing controllers, identifying process models, and simulating plants, built on a verified Go BLAS/LAPACK. No cgo or Fortran toolchain needed.</p>
+        <div class="cta">
+          <a class="btn primary" href="#libraries">Explore libraries</a>
+          <a class="btn" href="https://github.com/PlantControl">View on GitHub →</a>
+        </div>
+        <pre class="install"><span>$ </span>go get plantcontrol.org/v2/controlsys/v2</pre>
+      </div>
+    </div>
+
+    <section id="libraries">
+      <div class="wrap">
+        <div class="eyebrow">Libraries</div>
+        <h2>From matrices to closed loops</h2>
+        <p class="section-intro">Each layer builds on the one below it: dense linear algebra, then state-space control, then identification and simulation tools.</p>
+
+        <div class="grid">
+          <article class="card">
+            <img class="icon gopher" src="assets/web/controlsys.webp" alt="controlsys gopher holding a feedback block diagram" width="72" height="72">
+            <h3>controlsys</h3>
+            <p>A control-systems toolbox for linear time-invariant models, with state space as the core representation.</p>
+            <ul>
+              <li>Bode, Nyquist, margins, root locus</li>
+              <li>LQR, LQG, H2, H∞, pole placement</li>
+              <li>PID tuning, Systune, Kalman filters</li>
+            </ul>
+            <pre>go get plantcontrol.org/v2/controlsys/v2</pre>
+            <a class="more" href="https://github.com/PlantControl/controlsys">github.com/PlantControl/controlsys →</a>
+          </article>
+
+          <article class="card">
+            <img class="icon" src="assets/web/gonum.webp" alt="" width="72" height="72">
+            <h3>gonum</h3>
+            <p>PlantControl's fork of Gonum, focused on pure-Go BLAS and LAPACK, with the extra routines that control design needs.</p>
+            <ul>
+              <li>Generalized eigenproblems (Dgges, Dtgsen)</li>
+              <li>Checked against netlib reference LAPACK</li>
+              <li>SIMD kernels in progress for ARM64 and AMD64</li>
+            </ul>
+            <pre>go get plantcontrol.org/v1/gonum</pre>
+            <a class="more" href="https://github.com/PlantControl/gonum">github.com/PlantControl/gonum →</a>
+          </article>
+
+          <article class="card">
+            <img class="icon" src="assets/web/oracle-pattern.webp" alt="" width="72" height="72">
+            <h3>oracle-pattern</h3>
+            <p>Record what legacy numerical code does once, then replay those recordings against its modern replacement. Demonstrated with a SLICOT routine ported to Go.</p>
+            <ul>
+              <li>Versioned baselines of recorded calls</li>
+              <li>Agent skill and migration playbook</li>
+            </ul>
+            <a class="more" href="https://github.com/PlantControl/oracle-pattern">github.com/PlantControl/oracle-pattern →</a>
+          </article>
+
+          <article class="card private">
+            <img class="icon" src="assets/web/systemid.webp" alt="" width="72" height="72">
+            <h3>systemid<span class="tag">Private</span></h3>
+            <p>Native Go system identification: ARX, ARMAX, subspace (N4SID, MOESP, CVA), closed-loop and frequency-domain methods. Results keep a reproducible record of how each model was fitted.</p>
+          </article>
+
+          <article class="card private">
+            <img class="icon" src="assets/web/process-lab.webp" alt="" width="72" height="72">
+            <h3>process-lab<span class="tag">Private</span></h3>
+            <p>A browser workbench for block diagrams, simulation, PID/LQG/H∞ design, and system identification. Ships as a single Go executable.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="principles">
+      <div class="wrap">
+        <div class="eyebrow">Principles</div>
+        <h2>Engineered to be trusted</h2>
+        <p class="section-intro">Control software runs real plants. Every library is held to the same rules.</p>
+        <div class="principles">
+          <div class="principle">
+            <h3>Pure Go</h3>
+            <p>No cgo and no Fortran runtime. A single <code>go get</code> cross-compiles anywhere Go runs.</p>
+          </div>
+          <div class="principle">
+            <h3>Verified against references</h3>
+            <p>Numerical results are checked against netlib LAPACK, SLICOT, and recorded oracles before they ship.</p>
+          </div>
+          <div class="principle">
+            <h3>AI-written, test-gated</h3>
+            <p>Code after the fork is AI-generated. Persistent tests, race checks, and reference comparisons gate every change.</p>
+          </div>
+          <div class="principle">
+            <h3>Open source</h3>
+            <p>Public libraries are MIT or BSD licensed. Upstream attribution is preserved where code descends from Gonum or netlib.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="modules">
+      <div class="wrap modules">
+        <div>
+          <div class="eyebrow">Go modules</div>
+          <h2>Vanity import paths</h2>
+          <table>
+            <thead><tr><th>Module</th><th>Repository</th></tr></thead>
+            <tbody>
+              <tr><td><code>plantcontrol.org/v1/gonum</code></td><td><a href="https://github.com/PlantControl/gonum">gonum</a></td></tr>
+              <tr><td><code>plantcontrol.org/v2/controlsys/v2</code></td><td><a href="https://github.com/PlantControl/controlsys">controlsys</a></td></tr>
+              <tr><td><code>plantcontrol.org/private/…</code></td><td>private repositories</td></tr>
+            </tbody>
+          </table>
+          <p class="note">Private modules need Git access and <code>go env -w GOPRIVATE=plantcontrol.org/private</code>.</p>
+        </div>
+        <img class="mascot" src="assets/web/mascot.webp" alt="Gopher in a hard hat holding a tablet with a feedback control diagram" width="380" height="469" loading="lazy">
+      </div>
+    </section>
   </main>
+
+  <footer>
+    <div class="wrap">
+      <p>© PlantControl. Gonum fork code © The Gonum Authors. The Go gopher was designed by Renée French and is licensed under CC BY 4.0.</p>
+      <a href="https://github.com/PlantControl">github.com/PlantControl</a>
+    </div>
+  </footer>
 </body>
 </html>
